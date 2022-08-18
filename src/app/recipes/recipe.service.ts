@@ -1,15 +1,60 @@
+import { Injectable } from "@angular/core";
+import { Subject } from "rxjs";
 
-import { EventEmitter } from '@angular/core';
-import {Recipe} from './recipe.model'
+import { Ingredient } from "../shared/ingredient.model";
+import { ShoppingListService } from "../shopping-list/shopping-list.service";
+import { Recipe } from "./recipe.model";
+
+@Injectable()
 export class RecipeService{
-    RecipeSelected = new EventEmitter<Recipe>();
-    private recipes:Recipe[]=[
-        new Recipe('chicken','This is simply a test','https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/cold-spiced-chicken-recipe-1557951578.jpg?crop=1xw:1xh;center,top&resize=980:*'),
-        new Recipe('litti chokha ','This is simply a test','https://www.secondrecipe.com/wp-content/uploads/2021/01/bihari-litti-chokha-720x563.jpg'),
-        new Recipe('paneer chilli ','This is simply a test','https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6Y6_79IMEh633JZzoA4xoSAqSJ30st2eZ_A&usqp=CAU')
-      ];
+    recipesChanged = new Subject<Recipe[]>();
+    
+    /*private recipes: Recipe[] = [
+        new Recipe(
+          'Tasty Schnitzel',
+          'A super-tasty Scnitzel-just awesome!',
+          'https://i.ndtvimg.com/i/2015-10/625-schnitzel_623x350_81446107437.jpg',
+          [new Ingredient('Meat', 1), new Ingredient('French Fries', 20)]
+        ),
+        new Recipe(
+          'Burger',
+          'What else you need to say?',
+          'https://imagesvc.meredithcorp.io/v3/mm/image?url=https%3A%2F%2Fstatic.onecms.io%2Fwp-content%2Fuploads%2Fsites%2F9%2F2021%2F07%2F13%2FUltimate-Veggie-Burgers-FT-Recipe-0821.jpg&q=60',
+          [new Ingredient('Buns', 2), new Ingredient('Meat', 1)]
+        ),
+      ];*/
+
+      private recipes: Recipe[] = [];
+
+      constructor(private slService: ShoppingListService){}
+
+      setRecipes(recipes:Recipe[]){
+        this.recipes = recipes;
+        this.recipesChanged.next(this.recipes.slice());
+      }
 
       getRecipes(){
         return this.recipes.slice();
+      }
+
+      getRecipe(index: number){
+        return this.recipes[index];
+      }
+
+      addIngredientsToShopppingList(ingredients: Ingredient[]){
+        this.slService.addIngredients(ingredients);
+      }
+
+      addRecipe(recipe: Recipe){
+        this.recipes.push(recipe);
+        this.recipesChanged.next(this.recipes.slice());
+      }
+      updateRecipe(index: number, newRecipe: Recipe){
+        this.recipes[index] = newRecipe;
+        this.recipesChanged.next(this.recipes.slice());
+      }
+      deleteRecipe(index: number){
+        this.recipes.splice(index, 1);
+        this.recipesChanged.next(this.recipes.slice());
       }
 }
